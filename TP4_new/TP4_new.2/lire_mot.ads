@@ -1,0 +1,1 @@
+ procedure Lire_Mot(S : String; Deb, Fin : out Integer);
