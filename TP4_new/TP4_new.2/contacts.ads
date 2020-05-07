@@ -3,7 +3,7 @@ use  Pointeurs_De_Strings;
 
 package Contacts is
 
-   type Un_Contact is limited private;
+   type Un_Contact is  private;
 
    subtype Une_Cle is String(1..10);
 
