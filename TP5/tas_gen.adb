@@ -5,8 +5,8 @@ package body Tas_Gen is
    
    procedure Liberer(T : in out Un_Tas) is
    begin
-      for Elem reverse in T.Les_Elements'First..T.Les_Elements'Last loop
-	 Liberer_Element(elem);
+      for Index  in T.Les_Elements'First..T.Les_Elements'Last loop
+	 Liberer_Element(T.Les_Elements(index));
       end loop;
       T.Cardinal := 0;
    end Liberer;
@@ -22,58 +22,45 @@ package body Tas_Gen is
    ---------------------------------------------------------------------------
    ---------------------------------------------------------------------------
    
-   procedure Permut_comp(Tab : in out Tab_elements) is
-      Aux : Element;
+   procedure Move_Down(Card : in Natural; T : in out Tab_elements) is
+      Aux : Element;   
    begin
-      --dissociation cas entre deux fils non nuls et un fils_gauche/fils_droite nul
-      if Tab(Tab'First*2) = null and Tab(Tab'First*2+1) = null then null;
-      elsif Tab(Tab'First*2) = null or Tab(Tab'First*2+1) = null then
-	 if Tab(Tab'First*2) = null and Tab(Tab'First*2+1) < Tab(Tab'First) then
-	    Aux := Tab(Tab'First);
-	    Tab(Tab'First) := Tab(Tab'First*2+1);
-	    Tab(Tab'First*2+1) := Aux;
-	 elsif Tab(Tab'First*2) < Tab(Tab'First) then
-	    Aux := Tab(Tab'First);
-	    Tab(Tab'First) := Tab(Tab'First*2);
-	    Tab(Tab'First*2) := Aux;
+      if Card = T'Last then null;
+      elsif Card*2 = T'Last then
+	 if Cle_De(T(Card)) < Cle_De(T(Card*2)) then 
+	    Aux := T(Card);
+	    T(Card) := T(Card*2);
+	    T(Card*2) := Aux;
+	    Move_Down(Card*2,T);
 	 end if;
       else
-	 --deux fils non nuls
-	 --prendre le plus petit des fils et verifier la relation d'ordre
-	 if Tab(Tab'First*2+1) <= Tab(Tab'First*2) then
-	    if Tab(Tab'First) > Tab(Tab'First*2+1) then
-	       --permutation
-	       Aux := Tab(Tab'First);
-	       Tab(Tab'First) := Tab(Tab'First*2+1);
-	       Tab(Tab'First*2+1) := Aux;
-	       --recursif si permutation faite pour s'assurer que tout est en ordre
-	       Permut_Comp(Tab(Tab'First*2+1));
+	 if Cle_De(T(Card*2+1))<Cle_De(T(Card*2)) then
+	    if Cle_De(T(Card))<Cle_De(T(Card*2+1)) then
+	       Aux := T(Card);
+	       T(Card) := T(Card*2+1);
+	       T(Card*2+1) := Aux;
+	       Move_Down(Card*2+1,T);
 	    end if;
-	 else
-	    if Tab(Tab'First) > Tab(Tab'First*2) then
-	       --permutation
-	       Aux := Tab(Tab'First);
-	       Tab(Tab'First) := Tab(Tab'First*2);
-	       Tab(Tab'First*2) := Aux;
-	       --recursif si permutation faite pour s'assurer que tout est en ordre
-	       Permut_Comp(Tab(Tab'First*2));
-	    end if;
+	 elsif Cle_De(T(Card*2))<Cle_De(T(Card)) then
+	    Aux := T(Card);
+	    T(Card) := T(Card*2);
+	    T(Card*2) := Aux;
+	    Move_Down(Card*2,T);
 	 end if;
       end if;
-   end Permut_Comp;
-   
+   end Move_Down;
+	 
    ---------------------------------------------------------------------------
    ---------------------------------------------------------------------------
       
    procedure Enlever_Racine(T : in out Un_Tas;E : out Element) is
-      Permut_Aux : Element;
    begin
       if T.Cardinal = 0 then raise Tas_Vide;
       else
 	 E := T.Les_Elements(1);
 	 T.Les_Elements(1) := T.Les_Elements(T.Les_Elements'Last);
 	 T.Cardinal := T.Cardinal -1;
-	 Permut_Comp(T.Les_elements);
+	 Move_down(1,T.Les_elements);
       end if;
    end Enlever_Racine;
    
@@ -87,7 +74,7 @@ package body Tas_Gen is
       if Card = 1 then null;
       --simplifier ces deux blocks en 1 avec int() ?
       elsif Card mod 2 = 0 then
-	 if Tab(Card) < Tab(Card/2) then
+	 if Cle_De(Tab(Card)) < Cle_De(Tab(Card/2)) then
 	    Aux := Tab(Card);
 	    Tab(Card) := Tab(Card/2);
 	    Tab(Card/2) := Aux;
@@ -95,7 +82,7 @@ package body Tas_Gen is
 	    Move_Up(Card/2,Tab);
 	 end if;
       else
-	 if Tab(Card) < Tab((Card-1)/2) then
+	 if Cle_De(Tab(Card)) < Cle_De(Tab((Card-1)/2)) then
 	    Aux := Tab(Card);
 	    Tab(Card) := Tab((Card-1)/2);
 	    Tab((Card-1)/2) := Aux;
@@ -109,14 +96,14 @@ package body Tas_Gen is
    ---------------------------------------------------------------------------
    ---------------------------------------------------------------------------
    
-   procedure Ajouter(T:in out Un_Tas;E:in element) is
+   procedure Ajouter(E:in Element;T: in out Un_tas) is
    begin
       if T.Cardinal = T.Les_Elements'Last then raise Tas_Plein;
       else
 	 T.Cardinal := T.Cardinal +1;
 	 T.Les_Elements(T.Cardinal) := E;
 	 --verification de l'ordre de comparaison
-	 Move-Up(T.Cardinal,T);
+	 Move_Up(T.Cardinal,T.Les_elements);
       end if;
    end Ajouter;
    
@@ -127,7 +114,9 @@ package body Tas_Gen is
       Str : String := "";
    begin
       for Elem in T.Les_Elements'Range loop
-	 Str = Str + Element_To_String(elem);
+	 Str := Str&Element_To_String(T.Les_Elements(Elem));
       end loop;
+      return Str;
    end Tas_To_String;
    
+   end Tas_Gen;
