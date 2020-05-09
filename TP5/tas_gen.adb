@@ -1,3 +1,6 @@
+with Ada.Text_Io;
+use Ada.Text_Io;
+
 package body Tas_Gen is
    
    --------------------------------------------------------------------------
@@ -22,30 +25,43 @@ package body Tas_Gen is
    ---------------------------------------------------------------------------
    ---------------------------------------------------------------------------
    
-   procedure Move_Down(Card : in Natural; T : in out Tab_elements) is
-      Aux : Element;   
+   procedure Permutation(Pos1,Pos2 : in Natural; T : in out Un_Tas) is
+      Aux : Element;
    begin
-      if Card = T'Last then null;
-      elsif Card*2 = T'Last then
-	 if Cle_De(T(Card)) < Cle_De(T(Card*2)) then 
-	    Aux := T(Card);
-	    T(Card) := T(Card*2);
-	    T(Card*2) := Aux;
-	    Move_Down(Card*2,T);
+      Aux := T.Les_Elements(Pos1);
+      T.Les_Elements(Pos1) := T.Les_Elements(Pos2);
+      T.Les_Elements(Pos2) := Aux;
+   end Permutation; 
+   
+   ---------------------------------------------------------------------------
+   ---------------------------------------------------------------------------
+   
+   procedure Move_Down(pos : in Natural; T : in out Un_tas) is  
+   begin
+      if Pos = T.Cardinal and T.cardinal < Pos*2 then null;
+      	 --check quand cardinal est pair et donc un seul fils
+      elsif Pos*2= T.Cardinal then
+	 --verification relation d'ordre
+	 if Cle_De(T.Les_Elements(Pos))<Cle_De(T.Les_Elements(T.Cardinal)) then
+	    Permutation(Pos,T.Cardinal,T);
 	 end if;
+	 --check quel fils est le plus petit
       else
-	 if Cle_De(T(Card*2+1))<Cle_De(T(Card*2)) then
-	    if Cle_De(T(Card))<Cle_De(T(Card*2+1)) then
-	       Aux := T(Card);
-	       T(Card) := T(Card*2+1);
-	       T(Card*2+1) := Aux;
-	       Move_Down(Card*2+1,T);
+	 if Cle_De(T.Les_Elements(Pos*2))<Cle_De(T.Les_Elements((Pos*2)+1)) then
+	 --si c'est celui de gauche on regarde la relation d'ordre avec le pere
+	    if Cle_De(T.Les_Elements(Pos*2)) < Cle_De(T.Les_Elements(Pos)) then
+	       Permutation(Pos*2,Pos,T);
+	       --on continue avec a l'etage inferieur
+	       Move_Down(Pos*2,T);
 	    end if;
-	 elsif Cle_De(T(Card*2))<Cle_De(T(Card)) then
-	    Aux := T(Card);
-	    T(Card) := T(Card*2);
-	    T(Card*2) := Aux;
-	    Move_Down(Card*2,T);
+	    --on evite une operation si ils sont egaux
+	 elsif Cle_De(T.Les_Elements((Pos*2)+1))<Cle_De(T.Les_Elements(Pos*2)) then
+	    --si le fils de droite est plus petit que le pere on permute
+	    if Cle_De(T.Les_Elements((Pos*2)+1))<Cle_De(T.Les_Elements(Pos)) then
+	       Permutation((Pos*2)+1,Pos,T);
+	       --on continue a l'etage inferieur
+	       Move_Down((Pos*2)+1,T);
+	    end if;
 	 end if;
       end if;
    end Move_Down;
@@ -58,9 +74,9 @@ package body Tas_Gen is
       if T.Cardinal = 0 then raise Tas_Vide;
       else
 	 E := T.Les_Elements(1);
-	 T.Les_Elements(1) := T.Les_Elements(T.Les_Elements'Last);
+	 T.Les_Elements(1) := T.Les_Elements(T.cardinal);
 	 T.Cardinal := T.Cardinal -1;
-	 Move_down(1,T.Les_elements);
+	 Move_down(1,T);
       end if;
    end Enlever_Racine;
    
@@ -110,13 +126,21 @@ package body Tas_Gen is
    ---------------------------------------------------------------------------
    ---------------------------------------------------------------------------
    
-   function Tas_To_String(T : in Un_Tas) return String is
-      Str : String := "";
+   function Tas_To_String_elements(T : in Tab_Elements;N:in natural) return String is
    begin
-      for Elem in T.Les_Elements'Range loop
-	 Str := Str&Element_To_String(T.Les_Elements(Elem));
-      end loop;
-      return Str;
+      if T'First = n then return Element_To_String(t(T'first));
+      else
+	 return Element_To_String(T(T'First))&" "&Tas_To_String_elements(T(T'First+1..T'last),N);
+      end if;
+   End Tas_To_String_elements;
+
+   function Tas_To_String(T : in  Un_Tas) return String is
+   begin
+      if T.Cardinal = 0 then return "";
+      else
+	 return Tas_To_String_Elements(T.Les_elements,T.cardinal);
+      end if;
    end Tas_To_String;
    
-   end Tas_Gen;
+   
+end Tas_Gen;

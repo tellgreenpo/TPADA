@@ -27,6 +27,31 @@ procedure Tester_Tas_Gen is
 				  Element_To_String=>Integer'Image);
    use Tas_Int;
    
+   -------------------------------------------------------------------
+   -------------------------------------------------------------------
+   
+   T : Un_Tas(10);
+   Int : Integer;
 begin
-   null;
+   Put_line("Test liberer....");
+   Liberer(T);
+   Put_line(Tas_To_String(T));
+   Put_Line("Test cardinal...");
+   Put_Line(Natural'Image(Cardinal(T)));
+   Put_Line("test ajouter...");
+   Ajouter(1,t);
+   Ajouter(4,T);
+   Ajouter(5,T);
+   Ajouter(15,t);
+   Ajouter(89,T);
+   Ajouter(72,T);
+   Ajouter(20,T);
+   Ajouter(20,T);
+   Put_Line(Tas_To_String(T));
+   Enlever_Racine(T,int);
+   Put_Line(Tas_To_String(T));
+   Enlever_Racine(T,Int);
+   Put_Line(Tas_To_String(T));
+   Enlever_Racine(T,Int);
+   Put_Line(Tas_To_String(T));
 end Tester_Tas_Gen;

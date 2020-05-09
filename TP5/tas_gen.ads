@@ -7,6 +7,9 @@
 --
 -- OBJET : paquetage generique de Tas
 ------------------------------------------------------------------------
+with Ada.Text_Io;
+use Ada.Text_Io;
+
 generic
    type Element is private;		    
    -- type des noms des éléments
